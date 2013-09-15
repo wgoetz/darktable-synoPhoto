@@ -1,0 +1,68 @@
+synogit: example gitolite serving user on synology
+root: root user on synolgy. NOT admin but same password
+USER: external user
+
+
+
+http://www.synology-wiki.de/index.php/Gitolite (gitolite2, outdated)
+
+ipkg is installed: http://www.synology-wiki.de/index.php/IPKG
+
+DSM: deinstall Perl-Package.
+	 syno-perl-package:5.8.6, gitolite req. 5.8.8 or later)
+
+root: ipkg install coreutils git perl
+ln -s /opt/bin/git* /usr/bin/. 
+ln -s /opt/bin/perl /usr/bin/.
+
+
+DSM: new user: synogit, home directory only!
+root: copy USER.pub -> synogit, passwd: change loginshell to /bin/ash
+
+synogit: git clone https://github.com/sitaramc/gitolite.git
+
+root: mkdir /usr/local/bin; chmod go+w /usr/local/bin
+synogit: gitolite/install -ln /usr/local/bin
+root: chmod go-w /usr/local/bin
+
+# trigger hooks inside gitolite messing up PATH, mktemp directly called: not busybox-ed
+synogit: ln -s /opt/bin/mktemp gitolite/src/.
+
+synogit: gitolite setup -pk USER.pub
+
+
+
+
+
+
+------------------------------------------
+external box login as USER:
+ssh synogit@diskstation help
+hello USER, this is gitolite3 v3.5.2-3-g2515992 on git 1.8.2.3
+
+list of remote commands available:
+
+	desc
+	help
+	info
+	perms
+	writable
+
+git clone synogit@diskstation:gitolite-admin
+
+...
+
+
+
+
+----------------------------
+UPDATE to DSM 4.3 20130827:
+
+
+as root:
+ln -s /opt/bin/git* /usr/bin/. 
+ln -s /opt/bin/perl /usr/bin/.
+
+in .profile
+comment the PATH= + export
+
