@@ -15,3 +15,5 @@ while read f;do
 	[ -f "$m" ] || $convert -resize 320x320   "$b" "$m"
 	[ -f "$s" ] || $convert -resize 120x120   "$m" "$s"
 done < <(find /diskstation/photo -path "*/@eaDir" -prune -o -type f -print)
+
+ssh admin@diskstation "synoindex -U photo"
