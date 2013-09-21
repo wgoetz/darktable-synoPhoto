@@ -6,6 +6,8 @@ mkdir="mkdir"
 convert="convert"
 ssh="ssh"
 
+[ -d "/diskstation/photo" ] || { echo no mount ;exit 1; }
+
 while read f;do
 	e="${f%/*}/@eaDir/${f##*/}"
 	x="$e/SYNOPHOTO_THUMB_XL.jpg"
