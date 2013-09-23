@@ -11,6 +11,8 @@ mkdir="mkdir"
 convert="convert"
 ssh="ssh"
 
+ssh admin@$syno_hostname uptime
+
 [ -d "/$syno_mount/photo" ] || { echo no mount; exit 1; }
 
 while read f;do
