@@ -35,3 +35,10 @@ for f in "${!Findex[@]}";do
 	$ssh admin@$syno_hostname "synoindex -a ${f/$syno_mount/volume1}"
 	echo -n .
 done
+
+echo
+echo photostation ok, wait for background indexer to finish
+echo
+echo TODO mediaserver has to be reindexed because new folders not visible: 
+echo TODO ssh admin@$syno_hostname synoindex -R media
+echo TODO dir/files unaccesible during reindexing
