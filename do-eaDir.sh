@@ -4,15 +4,38 @@
 syno_hostname="diskstation"
 syno_mount="diskstation"
 
+function atexit {
+	echo -n "index "
+
+	for f in "${!Findex[@]}";do
+		$ssh admin@$syno_hostname "synoindex -a ${f/$syno_mount/volume1}"
+		echo -n a
+	done
+
+	for d in "${!Dindex[@]}";do
+		$ssh admin@$syno_hostname "synoindex -R ${d/$syno_mount/volume1}"
+		echo -n R		
+	done
+
+	echo
+	echo photostation+mediaserver ok, wait for background indexer to finish
+	echo
+
+}
+
+
 
 declare -A Findex
 declare -A Dindex
+
+trap atexit EXIT
+
 
 mkdir="mkdir"
 convert="convert"
 ssh="ssh"
 
-ssh admin@$syno_hostname uptime
+timeout 2 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
 
 [ -d "/$syno_mount/photo" ] || { echo no mount; exit 1; }
@@ -34,21 +57,6 @@ while read f;do
 	[ $F -eq 1 ] && { echo "."; }
 done < <(find /$syno_mount/photo -path "*/@eaDir" -prune -o -type f -print)
 
-echo -n "index "
-
-for f in "${!Findex[@]}";do
-	$ssh admin@$syno_hostname "synoindex -a ${f/$syno_mount/volume1}"
-	echo -n a
-done
-
-for d in "${!Dindex[@]}";do
-	$ssh admin@$syno_hostname "synoindex -R ${d/$syno_mount/volume1}"
-	echo -n R		
-done
-
-echo
-echo photostation+mediaserver ok, wait for background indexer to finish
-echo
 
 #echo TODO mediaserver has to be reindexed because new folders not visible: 
 #echo TODO ssh admin@$syno_hostname synoindex -R media
