@@ -28,7 +28,6 @@ function atexit {
 declare -A Findex
 declare -A Dindex
 
-trap atexit EXIT
 
 
 mkdir="mkdir"
@@ -38,7 +37,9 @@ ssh="ssh"
 timeout 2 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
 
-[ -d "/$syno_mount/photo" ] || { echo no mount; exit 1; }
+[ -d "/$syno_mount/photo" ] || { echo no mount, 1minute for autofs; exit 1; }
+
+trap atexit EXIT
 
 while read f;do
 	d="${f%/*}/@eaDir"
@@ -48,8 +49,8 @@ while read f;do
 	m="$e/SYNOPHOTO_THUMB_M.jpg"
 	s="$e/SYNOPHOTO_THUMB_S.jpg"
 	F=0
-	[ -d "$d" ] || { $mkdir "$d"; Dindex[${f%/*}]=1; }
-	[ -d "$e" ] || { $mkdir "$e"; F=1; Findex[$f]=1; echo -n "$f"; }
+	[ -d "$d" ] || { Dindex[${f%/*}]=1; $mkdir "$d"; }
+	[ -d "$e" ] || { Findex[$f]=1; $mkdir "$e"; F=1; echo -n "$f"; }
 	[ -f "$x" ] || { $convert -resize 1280x1280 "$f" "$x"; echo -n " X"; }
 	[ -f "$b" ] || { $convert -resize 640x640   "$x" "$b"; echo -n " B"; }
 	[ -f "$m" ] || { $convert -resize 320x320   "$b" "$m"; echo -n " M"; }
@@ -57,7 +58,3 @@ while read f;do
 	[ $F -eq 1 ] && { echo "."; }
 done < <(find /$syno_mount/photo -path "*/@eaDir" -prune -o -type f -print)
 
-
-#echo TODO mediaserver has to be reindexed because new folders not visible: 
-#echo TODO ssh admin@$syno_hostname synoindex -R media
-#echo TODO dir/files unaccesible during reindexing
