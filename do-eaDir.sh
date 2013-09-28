@@ -4,12 +4,19 @@
 syno_hostname="diskstation"
 syno_mount="diskstation"
 
+declare -A Findex
+declare -A Dindex
+
+mkdir="mkdir"
+convert="convert"
+ssh="ssh"
+
+
 function atexit {
 	echo -n "index "
 
 	for f in "${!Findex[@]}";do
-		$ssh admin@$syno_hostname "synoindex -a ${f/$syno_mount/volume1}"
-		echo -n a
+		[ ${Dindex[${f%/*}]}0 -eq 0 ] && { $ssh admin@$syno_hostname "synoindex -a ${f/$syno_mount/volume1}"; echo -n a; }
 	done
 
 	for d in "${!Dindex[@]}";do
@@ -24,15 +31,6 @@ function atexit {
 }
 
 
-
-declare -A Findex
-declare -A Dindex
-
-
-
-mkdir="mkdir"
-convert="convert"
-ssh="ssh"
 
 timeout 2 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
