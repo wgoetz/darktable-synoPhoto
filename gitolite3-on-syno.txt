@@ -66,3 +66,20 @@ ln -s /opt/bin/perl /usr/bin/.
 in .profile
 comment the PATH= + export
 
+
+
+---------------------------------------
+DSM 4.3-3810: gitolite messed up again:
+no symlinking into syno-owned directories
+replace /usr/local/perl with /opt/local/perl 
+
+cd gitolite/src
+for i in `grep -rl "/usr/bin/perl" *`;do sed -i 's!/usr/bin/perl!/opt/bin/perl!' $i;done
+ln -s /opt/git/* .
+
+
+test:
+hello USER, this is synogit@DiskStation running gitolite3 v3.5.2-3-g2515992 on git 1.8.4.2
+
+
+should be update-save now.
