@@ -12,16 +12,53 @@ convert="convert"
 ssh="ssh"
 
 
+function reduce {
+	for d in "${!Dindex[@]}";do
+		if [ ${Dindex[$d]} -eq 1 ];then
+			if [ "$d" != "/$syno_mount/photo" ];then
+				Dindex["${d%/*}"]=2
+			fi
+		fi
+	done
+	
+	for d in "${!Dindex[@]}";do
+		if [ ${Dindex["$d"]}0 -eq 20 ];then
+			flag=1
+			D=($(find $d -mindepth 1 -maxdepth 1 -type d ! -name "@eaDir" -printf "%f\n"))
+			for r in "${D[@]}";do
+				if [ ${Dindex["$d/$r"]}0 -ne 10 ];then
+					flag=0
+				fi
+			done
+			if [ $flag -eq 1 ];then
+				Dindex["$d"]=1
+				for r in "${D[@]}";do
+					 unset Dindex["$d/$r"]
+				done
+			fi
+		fi
+	done
+}
+
+
 function atexit {
 	echo -n "index "
 
 	for f in "${!Findex[@]}";do
-		[ ${Dindex[${f%/*}]}0 -eq 0 ] && { $ssh admin@$syno_hostname "synoindex -a ${f/$syno_mount/volume1}"; echo -n a; }
+		[ ${Dindex[${f%/*}]}0 -eq 0 ] && { $ssh admin@$syno_hostname "synoindex -a \"${f/$syno_mount/volume1}\""; echo -n a; }
 	done
 
+	rold=-1 
+	until [ $rold -eq ${#Dindex[@]} ];do
+		rold=${#Dindex[@]}
+		reduce
+	done
+	
 	for d in "${!Dindex[@]}";do
-		$ssh admin@$syno_hostname "synoindex -R ${d/$syno_mount/volume1}"
-		echo -n R		
+		if [ ${Dindex[$d]}  -eq 1 ];then
+			$ssh admin@$syno_hostname "synoindex -R \"${d/$syno_mount/volume1}\""
+			echo INDEX ${d/$syno_mount/volume1}
+		fi
 	done
 
 	echo
@@ -32,7 +69,7 @@ function atexit {
 
 
 
-timeout 2 ssh admin@$syno_hostname uptime
+timeout 5 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
 
 [ -d "/$syno_mount/photo" ] || { echo no mount, 1minute for autofs; exit 1; }
