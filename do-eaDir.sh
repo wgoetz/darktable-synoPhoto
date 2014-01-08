@@ -85,11 +85,18 @@ while read f;do
 	s="$e/SYNOPHOTO_THUMB_S.jpg"
 	F=0
 	[ -d "$d" ] || { Dindex[${f%/*}]=1; $mkdir "$d"; }
-	[ -d "$e" ] || { Findex[$f]=1; $mkdir "$e"; F=1; echo -n "$f"; }
-	[ -f "$x" ] || { $convert -resize 1280x1280 "$f" "$x"; echo -n " X"; }
-	[ -f "$b" ] || { $convert -resize 640x640   "$x" "$b"; echo -n " B"; }
-	[ -f "$m" ] || { $convert -resize 320x320   "$b" "$m"; echo -n " M"; }
-	[ -f "$s" ] || { $convert -resize 120x120   "$m" "$s"; echo -n " S"; }
-	[ $F -eq 1 ] && { echo "."; }
+	[ -d "$e" ] || { Findex[$f]=1; $mkdir "$e"; F=1; }
+	if [ "$f" -nt  "$x" ] ; then
+		echo -n "$f"
+		$convert -resize 1280x1280 "$f" "$x"; echo -n " X"
+		$convert -resize 640x640   "$x" "$b"; echo -n " B"
+		$convert -resize 320x320   "$b" "$m"; echo -n " M"
+		$convert -resize 120x120   "$m" "$s"; echo -n " S"
+		if [ $F -eq 1 ]; then
+			echo " IDX"
+		else
+			echo 
+		fi
+	fi
 done < <(find /$syno_mount/photo -path "*/@eaDir" -prune -o -type f -print)
 
