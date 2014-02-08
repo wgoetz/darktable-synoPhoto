@@ -29,11 +29,11 @@ while read f;do
 
 	if [ "${Xindex[$k]}" -a  "${Xindex[$k]}" -nt "$f" ];then
 		[ -f "$t" ] && rm -v "$t"
-		echo $dt_cli "${Xindex[$k]%.xmp}" "$t" $(identify -format "--width %W --height %H" "$f")
-		echo mv "$t" "$f"
+		/usr/bin/time -f "%E %C" $dt_cli "${Xindex[$k]%.xmp}" "$t" $(identify -format "--width %W --height %H" "$f")
+		[ -f "$t" ] && mv -v "$t" "$f"
 		F=1
 	fi
-done < <(find /$syno_mount/photo -path "*/@eaDir" -prune -o -type f -print)
+done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 
 
 if [ $F -eq 1 ];then
