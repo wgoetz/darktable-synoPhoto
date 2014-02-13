@@ -29,7 +29,9 @@ while read f;do
 
 	if [ "${Xindex[$k]}" -a  "${Xindex[$k]}" -nt "$f" ];then
 		[ -f "$t" ] && rm -v "$t"
+		mtime=$(/usr/bin/stat --format="%y" "${Xindex[$k]}")
 		/usr/bin/time -f "%E %C" $dt_cli "${Xindex[$k]%.xmp}" "$t" $(identify -format "--width %W --height %H" "$f")
+		/usr/bin/touch --date="$mtime" "${Xindex[$k]}"
 		[ -f "$t" ] && mv -v "$t" "$f"
 		F=1
 	fi
