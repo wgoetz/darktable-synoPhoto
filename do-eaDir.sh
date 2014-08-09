@@ -98,5 +98,5 @@ while read f;do
 			echo 
 		fi
 	fi
-done < <(find /$syno_mount/photo -path "*/@eaDir" -prune -o -type f -print)
+done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 

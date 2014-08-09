@@ -21,21 +21,21 @@ while read f;do
 	Xindex[$k]=$f
 done < <(find $dt_xml -name \*.xmp -print)
 
+> /tmp/dt-cli.args
 
 while read f;do
 	b=${f##*/}
 	k=${b%%.*}
-	t="/tmp/$b"
+	xmp=${Xindex[$k]}
 
-	if [ "${Xindex[$k]}" -a  "${Xindex[$k]}" -nt "$f" ];then
-		[ -f "$t" ] && rm -v "$t"
-		mtime=$(/usr/bin/stat --format="%y" "${Xindex[$k]}")
-		/usr/bin/time -f "%E %C" $dt_cli "${Xindex[$k]%.xmp}" "$t" $(identify -format "--width %W --height %H" "$f")
-		/usr/bin/touch --date="$mtime" "${Xindex[$k]}"
-		[ -f "$t" ] && mv -v "$t" "$f"
+	if [ "$xmp" -a  "$xmp" -nt "$f" ];then
+		echo  "$xmp,$f" >> /tmp/dt-cli.args
 		F=1
 	fi
 done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
+
+
+parallel --jobs 4 dt-cli.sh :::: /tmp/dt-cli.args
 
 
 if [ $F -eq 1 ];then
