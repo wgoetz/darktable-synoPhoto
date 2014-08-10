@@ -35,7 +35,7 @@ while read f;do
 done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 
 
-parallel --jobs 4 dt-cli.sh :::: /tmp/dt-cli.args
+parallel --jobs 2 dt-cli.sh :::: < <(grep -v "_01.jpg" /tmp/dt-cli.args)
 
 
 if [ $F -eq 1 ];then
