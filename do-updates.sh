@@ -21,7 +21,6 @@ while read f;do
 	Xindex[$k]=$f
 done < <(find $dt_xml -name \*.xmp -print)
 
-> /tmp/dt-cli.args
 
 while read f;do
 	b=${f##*/}
@@ -29,13 +28,13 @@ while read f;do
 	xmp=${Xindex[$k]}
 
 	if [ "$xmp" -a  "$xmp" -nt "$f" ];then
-		echo  "$xmp,$f" >> /tmp/dt-cli.args
+		pargs+=("$xmp,$f")
 		F=1
 	fi
 done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 
 
-parallel --sshlogin 2/: dt-cli.sh :::: < <(grep -v "_01.jpg" /tmp/dt-cli.args)
+parallel --sshlogin 2/: dt-cli.sh :::: < <(IFS=$'\n'; echo "${pargs[*]}"|grep -v "_01.jpg")
 
 
 if [ $F -eq 1 ];then

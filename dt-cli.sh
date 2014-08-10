@@ -24,5 +24,5 @@ cat "$nef" > /dev/null
 ) 9>/var/lock/dt-cli.lock
 
 /usr/bin/touch --date="$mtime" "$xmp"
-[ -f "$t" ] && mv  "$t" "$out"
+[ -s "$t" ] && mv  "$t" "$out"
 
