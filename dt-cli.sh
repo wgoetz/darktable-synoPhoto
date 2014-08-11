@@ -16,12 +16,9 @@ mtime=$(/usr/bin/stat --format="%y" "$xmp")
 outfmt=$(identify -format "--width %W --height %H" "$out")
 cat "$nef" > /dev/null
 
-(
-	flock -x 9 || exit 1
-	/usr/bin/time -a -o /tmp/dt-cli.time -f "%E %C" $dt_cli "$nef" "$t" $outfmt\
-	       	--core -d opencl 2>/dev/null|grep summary
-
-) 9>/var/lock/dt-cli.lock
+flock /var/lock/dt-cli.lock /usr/bin/time -a -o /tmp/dt-cli.time -f "%E %C"\
+	$dt_cli "$nef" "$t" $outfmt\
+    	--core -d opencl 2>/dev/null|grep summary
 
 /usr/bin/touch --date="$mtime" "$xmp"
 [ -s "$t" ] && mv  "$t" "$out"
