@@ -12,11 +12,11 @@ raw=${xmp%.xmp}  # assuming ONE sidecar file: beware of dt duplicates: TODO:look
 echo -n "$out "
 
 
-a=$(xpath -q -s "" -e x:xmpmeta/rdf:RDF/rdf:Description/darktable:history_params/rdf:Seq/rdf:li "$xmp"|sed 's/<[^>]*>//g;a \'|sha1sum|cut -b-40)
-b=$(exiftool -s -S -f -History_params "$out"|sed 's/, //g'|sha1sum|cut -b-40)
+a=$(exiftool -s -S -f -History_params "$xmp")
+b=$(exiftool -s -S -f -History_params "$out")
 mtime=$(/usr/bin/stat --format="%y" "$xmp")
 
-if [ $a = $b ];then
+if [ "$a" = "$b" ];then
 	/usr/bin/touch --date="$mtime" "$out"
 	echo "touched due to no picture content change"
 else
