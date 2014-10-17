@@ -7,10 +7,11 @@ dt_cli="/opt/darktable/bin/darktable-cli"
 IFS="," read xmp out <<< $1
 
 t="/tmp/${out##*/}"
-raw=${xmp%.xmp}  # assuming ONE sidecar file: beware of dt duplicates: TODO:look into xmp and remove q&d filter in calling script
+raw=${xmp%/*}/$(exiftool -s -S -f -DerivedFrom $xmp)
+
+[ -f $raw ] || { echo "NOT FOUND: $raw" ; exit 1; }
 
 echo -n "$out "
-
 
 a=$(exiftool -s -S -f -History_params "$xmp")
 b=$(exiftool -s -S -f -History_params "$out")
