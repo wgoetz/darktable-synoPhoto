@@ -7,9 +7,9 @@ dt_cli="/opt/darktable/bin/darktable-cli"
 IFS="," read xmp out <<< $1
 
 tout="/tmp/${out##*/}"
-raw=${xmp%/*}/$(exiftool -s -S -f -DerivedFrom $xmp)
+raw=${xmp%/*}/$(exiftool -s -S -f -DerivedFrom "$xmp")
 
-[ -f $raw ] || { echo "NOT FOUND: $raw" ; exit 1; }
+[ -f "$raw" ] || { echo "NOT FOUND: $raw" ; exit 1; }
 
 echo -n "$out "
 
