@@ -36,8 +36,3 @@ done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 
 parallel --sshlogin 2/: dt-cli.sh :::: < <(IFS=$'\n'; echo "${pargs[*]}"|grep -v "_01.jpg")
 
-
-if [ $F -eq 1 ];then
-	do-eaDir.sh
-fi
-
