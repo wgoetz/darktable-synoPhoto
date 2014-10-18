@@ -53,9 +53,7 @@ function dtcli {
 }
 export -f dtcli
 
-
 declare -A Xindex
-F=0
 
 
 timeout 5 ssh admin@$syno_hostname uptime
@@ -77,7 +75,6 @@ while read f;do
 
 	if [ "$xmp" -a  "$xmp" -nt "$f" ];then
 		pargs+=("$xmp,$f")
-		F=1
 	fi
 done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 
