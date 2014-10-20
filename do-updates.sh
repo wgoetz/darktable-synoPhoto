@@ -72,10 +72,7 @@ while read f;do
 	b=${f##*/}
 	k=${b%%.*}
 	xmp=${Xindex[$k]}
-
-	if [ "$xmp" -a  "$xmp" -nt "$f" ];then
-		pargs+=("$xmp,$f")
-	fi
+	[ "$xmp" -a  "$xmp" -nt "$f" ] && pargs+=("$xmp,$f")
 done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
 
 
