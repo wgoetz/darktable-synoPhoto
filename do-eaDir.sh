@@ -2,7 +2,8 @@
 # wolfgang.ztoeg@web.de 20130915
 
 syno_hostname="diskstation"
-syno_mount="diskstation"
+syno_photo="/volume1/photo"
+syno_mount_photo="/net/$syno_hostname$syno_photo"
 
 declare -A Findex
 declare -A Dindex
@@ -15,7 +16,7 @@ ssh="ssh"
 function reduce {
 	for d in "${!Dindex[@]}";do
 		if [ ${Dindex[$d]} -eq 1 ];then
-			if [ "$d" != "/$syno_mount/photo" ];then
+			if [ "$d" != "$syno_mount_photo" ];then
 				Dindex["${d%/*}"]=2
 			fi
 		fi
@@ -45,7 +46,7 @@ function atexit {
 	echo -n "index "
 
 	for f in "${!Findex[@]}";do
-		[ ${Dindex[${f%/*}]}0 -eq 0 ] && { $ssh admin@$syno_hostname "synoindex -a \"${f/$syno_mount/volume1}\""; echo -n a; }
+		[ ${Dindex[${f%/*}]}0 -eq 0 ] && { $ssh admin@$syno_hostname "synoindex -a \"${f/$syno_mount_photo/$syno_photo}\""; echo -n a; }
 	done
 
 	rold=-1 
@@ -56,8 +57,8 @@ function atexit {
 	
 	for d in "${!Dindex[@]}";do
 		if [ ${Dindex[$d]}  -eq 1 ];then
-			$ssh admin@$syno_hostname "synoindex -R \"${d/$syno_mount/volume1}\""
-			echo INDEX ${d/$syno_mount/volume1}
+			$ssh admin@$syno_hostname "synoindex -R \"${d/$syno_mount_photo/$syno_photo}\""
+			echo INDEX ${d/$syno_mount_photo/$syno_photo}
 		fi
 	done
 
@@ -72,7 +73,7 @@ function atexit {
 timeout 5 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
 
-[ -d "/$syno_mount/photo" ] || { echo no mount, 1minute for autofs; exit 1; }
+[ -d "$syno_mount_photo" ] || { echo no mount, 1minute for autofs; exit 1; }
 
 trap atexit EXIT
 
@@ -98,5 +99,5 @@ while read f;do
 			echo 
 		fi
 	fi
-done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
+done < <(find $syno_mount_photo/ -path "*/@eaDir" -prune -o -type f -print)
 

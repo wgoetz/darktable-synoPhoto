@@ -2,9 +2,10 @@
 # wolfgang.ztoeg@web.de 20140203
 
 syno_hostname="diskstation"
-syno_mount="diskstation"
+syno_photo="/volume1/photo"
+syno_mount_photo="/net/$syno_hostname$syno_photo"
 dt_xml="/data/digi"
-
+dt_cli="darktable-cli"
 
 function dtcli {
 	IFS="," read xmp out <<< $1
@@ -36,8 +37,8 @@ function dtcli {
 		cat "$raw" > /dev/null
 		mtime=$(/usr/bin/stat --format="%y" "$xmp")
 
-		flock /var/lock/dt-cli.lock /usr/bin/time -a -o /tmp/dt-cli.time -f "%E %C"\
-			/opt/darktable/bin/darktable-cli "$raw" "$tout" $outfmt\
+		flock /tmp/dt-cli.lock /usr/bin/time -a -o /tmp/dt-cli.time -f "%E %C"\
+			$dt_cli "$raw" "$tout" $outfmt\
 			--core -d opencl 2>/dev/null|grep summary|tr -d \\n
 
 		/usr/bin/touch --date="$mtime" "$xmp"
@@ -59,7 +60,7 @@ declare -A Xindex
 timeout 5 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
 
-[ -d "/$syno_mount/photo" ] || { echo no mount, 1minute for autofs; exit 1; }
+[ -d "$syno_mount_photo" ] || { echo no mount, 1minute for autofs; exit 1; }
 
 while read f;do
 	b=${f##*/}
@@ -73,7 +74,7 @@ while read f;do
 	k=${b%%.*}
 	xmp=${Xindex[$k]}
 	[ "$xmp" -a  "$xmp" -nt "$f" ] && pargs+=("$xmp,$f")
-done < <(find /$syno_mount/photo/ -path "*/@eaDir" -prune -o -type f -print)
+done < <(find $syno_mount_photo/ -path "*/@eaDir" -prune -o -type f -print)
 
 
 parallel -j2 dtcli :::: < <(IFS=$'\n'; echo "${pargs[*]}"|grep -v "_01.jpg")
