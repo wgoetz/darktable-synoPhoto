@@ -5,15 +5,15 @@ syno_hostname="diskstation"
 syno_photo="/volume1/photo"
 syno_mount_photo="/net/$syno_hostname$syno_photo"
 dt_xml="/data/digi"
-dt_cli="darktable-cli"
 
 function dtcli {
-	IFS="," read xmp out <<< $1
+	dt_cli="darktable-cli"
+	IFS="," read xmp out <<< "$1"
 
 	tout="/tmp/${out##*/}"
 	raw=${xmp%/*}/$(exiftool -s -S -f -DerivedFrom "$xmp")
 
-	[ -f "$raw" ] || { echo "NOT FOUND: $raw" ; exit 1; }
+	[ -f "$raw" ] || { echo "NOT FOUND: $raw"; exit 1; }
 
 	echo -n "$out "
 
