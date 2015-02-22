@@ -57,7 +57,7 @@ export -f dtcli
 declare -A Xindex
 
 
-timeout 5 ssh admin@$syno_hostname uptime
+timeout -k 10 5 ssh admin@$syno_hostname uptime
 [ $? -eq 0 ] || { echo ssh failed; exit 1; }
 
 [ -d "$syno_mount_photo" ] || { echo no mount, 1minute for autofs; exit 1; }
