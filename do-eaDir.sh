@@ -57,7 +57,7 @@ function atexit {
 	
 	for d in "${!Dindex[@]}";do
 		if [ ${Dindex[$d]}  -eq 1 ];then
-			$ssh admin@$syno_hostname "synoindex -R \"${d/$syno_mount_photo/$syno_photo}\""
+			$ssh admin@$syno_hostname "/usr/syno/bin/synoindex -R \"${d/$syno_mount_photo/$syno_photo}\""
 			echo INDEX ${d/$syno_mount_photo/$syno_photo}
 		fi
 	done
