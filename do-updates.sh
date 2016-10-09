@@ -7,7 +7,7 @@ syno_mount_photo="/net/$syno_hostname$syno_photo"
 dt_xml="/data/digi"
 
 function dtcli {
-	dt_cli="darktable-cli"
+	dt_cli="/opt/darktable/bin/darktable-cli"
 	IFS="," read xmp out <<< "$1"
 
 	tout="/tmp/${out##*/}"
@@ -25,8 +25,8 @@ function dtcli {
 	s="$e/SYNOPHOTO_THUMB_S.jpg"
 
 
-	aHist=$(exiftool -s -S -f -History_params "$xmp")
-	bHist=$(exiftool -s -S -f -History_params "$out")
+	aHist=$(exiftool -s -S -f -HistoryParams -History_params "$xmp"|md5sum)
+	bHist=$(exiftool -s -S -f -HistoryParams -History_params "$out"|md5sum)
 
 	if [ "$aHist" = "$bHist" ];then
 		touch "$out" "$x" "$b" "$m" "$s"
@@ -41,14 +41,16 @@ function dtcli {
 			$dt_cli "$raw" "$tout" $outfmt\
 			--core -d opencl 2>/dev/null|grep summary|tr -d \\n
 
-		/usr/bin/touch --date="$mtime" "$xmp"
 		if [ -s "$tout" ];then
+			/usr/bin/touch --date="$mtime" "$xmp"
 			mv  "$tout" "$out"
 			convert -resize 1280x1280 "$out" "$x"; echo -n " X"
 			convert -resize 640x640   "$x" "$b"; echo -n " B"
 			convert -resize 320x320   "$b" "$m"; echo -n " M"
 			convert -resize 120x120   "$m" "$s"; echo -n " S"
 			echo
+		else
+			echo ____something____wrong____ $tout
 		fi
 	fi
 }
