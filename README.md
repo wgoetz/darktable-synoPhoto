@@ -1,5 +1,4 @@
-recipe to install gitolite3 on synology NAS
-
+# darktable-synoPhoto
 
 do-eaDir.sh thumbnails for photostation via nfs mount
 
