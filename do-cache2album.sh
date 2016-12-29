@@ -3,9 +3,10 @@
 
 dt_cache=$(ls -d ~/.cache/darktable/mipmaps-*.d)
 mip_stage=4
-album="$HOME/Pictures/dt-mip/$mip_stage"
+album="$HOME/Pictures/dt-mip/test2"
+declare -i ofn
 
-#darktable-generate-cache -m $mip_stage 
+darktable-generate-cache -m $mip_stage 
 
 while IFS="|" read n i d f;do
 	[[ "$d" =~ [[:digit:]] ]] || continue
@@ -18,12 +19,23 @@ while IFS="|" read n i d f;do
 	fb=${f##*/}
 
 	od="$album/$Y/$M/$fb" 
-	of="$od/$nb.jpg"
 	
-	[ -d "$od" ] || mkdir -pv "$od" 
-	[ -f "$of" ] || cp -pv $if "$of"
-	[ "$if" -nt "$of" ] &&  { echo TIMESTAMP NT $i $if $of; stat "$if" "$of"; diff  "$if" "$of"; echo; }
-	[ "$if" -ot "$of" ] && echo TIMESTAMP OT $i $if $of
-	#diff "$if" "$of"
+	[ -d "$od" ] || { mkdir -p "$od"; echo -n M; }
+ 
+	of="$od/$nb.jpg"
+	ofn=0
+	until cp -pus $if "$of" 2>/dev/null ; do
+		if [[ $(readlink "$of") =~ \/$i.jpg ]]; then
+			rm "$of"
+		else
+			ofn+=1
+			if [ $ofn -lt 100 ];then
+				of=$(printf "$od/${nb}_%02d.jpg" $ofn)
+			else 
+				of=$(printf "$od/${nb}_%d.jpg" $ofn)
+			fi
+		fi
+	done
+
 done < <(sqlite3 ~/.config/darktable/library.db "select filename,images.id,datetime_taken,film_rolls.folder from images inner join film_rolls on images.film_id=film_rolls.id;")
 
