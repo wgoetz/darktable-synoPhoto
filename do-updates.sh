@@ -25,8 +25,8 @@ function dtcli {
 	s="$e/SYNOPHOTO_THUMB_S.jpg"
 
 
-	aHist=$(exiftool -s -S -f -HistoryParams -History_params "$xmp"|md5sum)
-	bHist=$(exiftool -s -S -f -HistoryParams -History_params "$out"|md5sum)
+	aHist=$(exiv2 -g params "$xmp"|md5sum)
+	bHist=$(exiv2 -g params "$out"|md5sum)
 
 	if [ "$aHist" = "$bHist" ];then
 		touch "$out" "$x" "$b" "$m" "$s"
